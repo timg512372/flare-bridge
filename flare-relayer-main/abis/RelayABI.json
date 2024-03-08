@@ -1,0 +1,617 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_relayer",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "_is_destination",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "uid",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "relayInitiator",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "relayTarget",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "additionalCalldata",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "sourceToken",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "targetToken",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "RelayExecuted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "uid",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "relayInitiator",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "relayTarget",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "additionalCalldata",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "sourceToken",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "targetToken",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "RelayRequested",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "_sourceToken",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_targetToken",
+                "type": "address"
+            }
+        ],
+        "name": "addTokenPair",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "availableTokens",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "calldataInterface",
+        "outputs": [
+            {
+                "internalType": "contract CalldataInterface",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "uid",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayInitiator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayTarget",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "additionalCalldata",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sourceToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "targetToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "executionResult",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "relayDataHash",
+                        "type": "bytes32"
+                    }
+                ],
+                "internalType": "struct RelayData",
+                "name": "_relayData",
+                "type": "tuple"
+            }
+        ],
+        "name": "executeRelay",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "executedRelays",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "uid",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "relayInitiator",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "relayTarget",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "additionalCalldata",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "sourceToken",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "targetToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "executionResult",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "relayDataHash",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getExecutedRelays",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "uid",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayInitiator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayTarget",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "additionalCalldata",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sourceToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "targetToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "executionResult",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "relayDataHash",
+                        "type": "bytes32"
+                    }
+                ],
+                "internalType": "struct RelayData[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getRequestedRelays",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "uid",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayInitiator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "relayTarget",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "additionalCalldata",
+                        "type": "bytes"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "sourceToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "targetToken",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "executionResult",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes32",
+                        "name": "relayDataHash",
+                        "type": "bytes32"
+                    }
+                ],
+                "internalType": "struct RelayData[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "is_destination",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "relayer",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "_sourceToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "removeTokenPair",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_relayTarget",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_additionalCalldata",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "_sourceToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "requestRelay",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "requestedRelays",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "uid",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "relayInitiator",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "relayTarget",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "additionalCalldata",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "sourceToken",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "targetToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "executionResult",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "relayDataHash",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            }
+        ],
+        "name": "setOwner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_uid",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_executionResult",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "relayDataHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "setRelayResult",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_relayer",
+                "type": "address"
+            }
+        ],
+        "name": "setRelayer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "tokenPair",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

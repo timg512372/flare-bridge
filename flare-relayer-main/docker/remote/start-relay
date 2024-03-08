@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+until pg_isready -h postgresdb -p 5432 -U "${DB_USER}" 2>/dev/null; do
+	echo "waiting for postgres"
+	sleep 1
+done
+
+until nc -z appserver 3030 2>/dev/null; do
+	echo "waiting for server"
+	sleep 1
+done
+
+exec python manage.py start_relay "$@"
