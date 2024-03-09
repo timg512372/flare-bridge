@@ -1,6 +1,9 @@
 "use client"
 import Link from "next/link"
+<<<<<<< HEAD
+=======
 
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
 import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
@@ -36,7 +39,11 @@ export function SiteHeader() {
             {address ? (
               <><AlertDialog>
                 <AlertDialogTrigger>
+<<<<<<< HEAD
+                <Button className={` ${buttonVariants()}`}>
+=======
                   <Button>
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
                     Connected
                     <span className="ml-2 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
                   </Button>
@@ -47,15 +54,24 @@ export function SiteHeader() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
+<<<<<<< HEAD
+                    <AlertDialogAction className="bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl" onClick={() => disconnect()}>Disconnect</AlertDialogAction>
+=======
                     <AlertDialogAction onClick={() => disconnect()}>Disconnect</AlertDialogAction>
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
               </>
             ) : (
+<<<<<<< HEAD
+              <Button className={`bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl`} onClick={() => open()}>Connect Wallet</Button>                   
+              )}
+=======
               <Button onClick={() => open()}>Connect Wallet</Button>
             )}
             <ThemeToggle />
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
           </nav>
         </div>
       </div>
