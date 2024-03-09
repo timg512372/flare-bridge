@@ -11,16 +11,14 @@ pragma solidity >=0.8.2 <0.9.0;
 contract Gateway is Ownable {
 
     IERC20Bridge public coinContract;
-    IEVMTransactionVerification public verifierContract;
     IRelayer public relayerContract;
     address relayTarget;
     address bridgedCoinContract;
 
     event TokensBridged();
 
-    constructor(address relayer, address verifier, address coin) Ownable(msg.sender){
+    constructor(address relayer, address coin) Ownable(msg.sender){
         coinContract = IERC20Bridge(coin);
-        verifierContract = IEVMTransactionVerification(verifier);
         relayerContract = IRelayer(relayer);
     }
 
@@ -35,8 +33,8 @@ contract Gateway is Ownable {
     // User should have approved the contract
     function sendToken(uint amount) public {
         coinContract.burnFrom(msg.sender, amount);
-
-        // relayerContract.requestRelay(relayTarget, bytes memory _additionalCalldata, address(0), 0)
+        bytes memory transferPayload = abi.encodeWithSignature("receiveToken(address,uint)", msg.sender, amount);
+        relayerContract.requestRelay(relayTarget, transferPayload, address(0), 0);
     }
 
     function receiveToken(address to, uint amount, EVMTransaction.Proof calldata transaction) public {
