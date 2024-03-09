@@ -48,15 +48,15 @@ export function BridgeCard() {
 
 
     <section className="container flex items-center justify-center gap-6 pb-8 pt-6 md:py-10 h-screen ">
-      <div className="flex-1 transform -translate-y-9">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          <LinearGradient gradient={['to bottom right', '#E3BCB0 ,#E4A8B8, #93AADC']}>
+      <div className="flex-1 transform translate-x-56 pb-96">
+        <h1 className="text-3xl font-extrabold leading-tight tracking-normal md:text-5xl">
+            <LinearGradient gradient={['to bottom right', '#E3BCB0 ,#E4A8B8, #93AADC']}>
             Bridge.
           </LinearGradient>
         </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground">
+        <p className="max-w-[700px] text-xl text-muted-foreground pt-2">
           <LinearGradient gradient={['to bottom right', '#E3BCB0 ,#E4A8B8, #93AADC']}>
-            Seamlessly send your assets across chains.
+            Seamlessly send your assets <br className="hidden sm:inline" />across chains.
           </LinearGradient>
         </p>
       </div>
@@ -157,6 +157,12 @@ export function BridgeCard() {
               </div>
             </form>
           </CardContent>
+          
+
+          <CardFooter className="flex justify-between">
+            <Input type="email" className="rounded-xl border-black" placeholder="Amount 0.0000" ></Input>
+
+          </CardFooter>
           <div className='grid grid-cols-2 flex justify-between'>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">Gas on Destination</Label>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">Add</Label>
@@ -165,14 +171,10 @@ export function BridgeCard() {
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">Fees</Label>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">----</Label>
           </div>
-
           <CardFooter className="flex justify-between">
-            <Input type="email" className="rounded-xl border-black" placeholder="Amount 0.0000" ></Input>
-
+            <Button className={` w-full bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 rounded-full`} onClick={() => open()}>Connect</Button>
           </CardFooter>
-          <CardFooter className="flex justify-between">
-            <Button className={` w-full bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 rounded-xl`} onClick={() => open()}>Connect</Button>
-          </CardFooter>
+          
         </Card>
 
 
