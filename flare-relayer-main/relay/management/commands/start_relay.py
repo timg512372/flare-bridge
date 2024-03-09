@@ -60,6 +60,10 @@ async def callOtherSide(
         "relayDataHash": EMPTY_BYTES,
     }
 
+    print(callDataDict)
+
+    print(decode(relExeTypes, additionalCalldata))
+
     # Create the web client and set the account
     gethClient = await GEthClient.__async_init__(chain)
     account: LocalAccount = Account.from_key(settings.PRIVATE_KEY)
@@ -68,11 +72,11 @@ async def callOtherSide(
         "from": account.address,
     }
 
-    # Access the Token contract, so that we can call functions on it
-    erc20contract = gethClient.geth.eth.contract(callDataDict["targetToken"], abi=erc20Abi)
-    tx_hash = await erc20contract.functions.transfer(relayAddr, amount).transact(transaction)
-    await gethClient.geth.eth.wait_for_transaction_receipt(tx_hash)
-    print("Allowance tx hash: ", tx_hash.hex())
+    # # Access the Token contract, so that we can call functions on it
+    # erc20contract = gethClient.geth.eth.contract(callDataDict["targetToken"], abi=erc20Abi)
+    # tx_hash = await erc20contract.functions.transfer(relayAddr, amount).transact(transaction)
+    # await gethClient.geth.eth.wait_for_transaction_receipt(tx_hash)
+    # print("Allowance tx hash: ", tx_hash.hex())
 
     # transaction = {
     #     "from": account.address,
@@ -83,17 +87,17 @@ async def callOtherSide(
     # counter = await counterContract.functions.getCounter().call()
     # print("Counter at the start : ", counter)
 
-    # Access the Relayer contract and call executeRelay function
-    relayerContract = gethClient.geth.eth.contract(relayAddr, abi=relayAbi)  # type: ignore
-    ex = await relayerContract.functions.executeRelay(callDataDict).transact(transaction)
-    await gethClient.geth.eth.wait_for_transaction_receipt(ex)
-    print("Execute relay hash: ", ex.hex())
+    # # Access the Relayer contract and call executeRelay function
+    # relayerContract = gethClient.geth.eth.contract(relayAddr, abi=relayAbi)  # type: ignore
+    # ex = await relayerContract.functions.executeRelay(callDataDict).transact(transaction)
+    # await gethClient.geth.eth.wait_for_transaction_receipt(ex)
+    # print("Execute relay hash: ", ex.hex())
 
     # Check if the counter was updated
     # counter = await counterContract.functions.getCounter().call()
     # print("Updated counter : ", counter)
 
-    # If everything was successfuly completed, we create and save a database object
+    # If everything was successful completed, we create and save a database object
     relayCall = RelayCall(
         chain=from_chain,
         timestamp=timestamp,
@@ -114,9 +118,10 @@ async def listener(chain: str):
     # Create the web client and find the last block
     gethClient = await GEthClient.__async_init__(chain)
     last_block, created = await Block.objects.aget_or_create(chain=chain, defaults={"number": 0, "timestamp": 0})
-    if created:
-        last_block.number = await gethClient.geth.eth.block_number
-    relayAddr = settings.SEPOLIA_RELAY if chain == "sepolia" else settings.COSTON_RELAY
+    # if created:
+    last_block.number = await gethClient.geth.eth.block_number
+    relayAddr = "" if chain == "sepolia" else "0xF5BD10D80C61641baa6DE1dcc8a240bD8De60189"
+
     to_chain = "coston" if chain == "sepolia" else "sepolia"
 
     # Prepare encoding of the RelayRequested function, that is stored in the first Topics field of the call log
@@ -130,11 +135,13 @@ async def listener(chain: str):
 
         # Check each block
         while last_block.number < current_block_n:
+            # print(current_block_n)
             block = await gethClient.geth.eth.get_block(last_block.number, full_transactions=True)
             logger.info(f"Checking block: {last_block.number}")
 
             assert "transactions" in block
             for tx in block["transactions"]:
+
                 # The correct transaction goes to the Relayer contract...
                 if tx["to"] == relayAddr:  # type: ignore
                     tx_rec = await gethClient.geth.eth.get_transaction_receipt(tx["hash"])  # type: ignore

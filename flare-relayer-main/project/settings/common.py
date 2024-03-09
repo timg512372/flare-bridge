@@ -213,6 +213,9 @@ SEPOLIA_NODE_WS_URL = os.environ.get("SEPOLIA_NODE_WS_URL")
 COSTON_RELAY = os.environ.get("COSTON_RELAY")
 SEPOLIA_RELAY = os.environ.get("SEPOLIA_RELAY")
 
+COSTON_GATEWAY = os.environ.get("COSTON_GATEWAY")
+SEPOLIA_GATEWAY = os.environ.get("SEPOLIA_GATEWAY")
+
 COSTON_COUNTER = os.environ.get("COSTON_COUNTER")
 SEPOLIA_COUNTER = os.environ.get("SEPOLIA_COUNTER")
 
