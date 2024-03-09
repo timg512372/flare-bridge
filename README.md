@@ -24,6 +24,10 @@ npx hardhat run scripts/deployCoin.js --network sepolia
 ```bash
 cd flare-relayer-main
 
-python relay/management/commands/start_relay.py
+pip install requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+eval export $(cat .env) | python manage.py start_relay sepolia
+eval export $(cat .env) | python manage.py start_relay coston
 
 ```
