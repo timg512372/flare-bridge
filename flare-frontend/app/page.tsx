@@ -1,39 +1,91 @@
-import Link from "next/link"
+"use client"
 
-import { siteConfig } from "@/config/site"
-import { buttonVariants } from "@/components/ui/button"
+
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import Image from 'next/image'
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useState } from 'react';
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage, Form } from "@/components/ui/form"
+
+const formSchema = z.object({
+  username: z.string().min(2).max(50),
+})
 
 export default function IndexPage() {
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-      <div className="flex max-w-[980px] flex-col items-start gap-2">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-          Beautifully designed components <br className="hidden sm:inline" />
-          built with Radix UI and Tailwind CSS.
-        </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground">
-          Accessible and customizable components that you can copy and paste
-          into your apps. Free. Open Source. And Next.js 13 Ready.
-        </p>
-      </div>
-      <div className="flex gap-4">
-        <Link
-          href={siteConfig.links.docs}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants()}
-        >
-          Documentation
-        </Link>
-        <Link
-          target="_blank"
-          rel="noreferrer"
-          href={siteConfig.links.github}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          GitHub
-        </Link>
-      </div>
-    </section>
+    <BridgeCard />
+  )
+}
+
+export function BridgeCard() {
+  const [blockchain1, setBlockchain1] = useState('');
+  const [blockchain2, setBlockchain2] = useState('');
+
+
+  return (
+
+    <section className="container grid items-center justify-center gap-6 pb-8 pt-6 md:py-10 flex h-screen">
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>Bridge</CardTitle>
+          <CardDescription>Seamlessly send your assets across chains.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="blockchain1">Blockchain 1</Label>
+                <Select>
+                  <SelectTrigger id="blockchain1">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="ethereum" onClick={() => setBlockchain1('ethereum')}>Ethereum</SelectItem>
+                    <SelectItem value="bitcoin" onClick={() => setBlockchain1('bitcoin')}>Bitcoin</SelectItem>
+                    <SelectItem value="cardano" onClick={() => setBlockchain1('cardano')}>Cardano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="blockchain1">Blockchain 1</Label>
+                <Select>
+                  <SelectTrigger id="blockchain2">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="ethereum" onClick={() => setBlockchain2('ethereum')}>Ethereum</SelectItem>
+                    <SelectItem value="bitcoin" onClick={() => setBlockchain2('bitcoin')}>Bitcoin</SelectItem>
+                    <SelectItem value="cardano" onClick={() => setBlockchain2('cardano')}>Cardano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline">Cancel</Button>
+          <Button>Deploy</Button>
+        </CardFooter>
+       
+      </Card>
+        </section>
   )
 }
