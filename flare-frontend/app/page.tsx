@@ -1,5 +1,10 @@
 "use client"
+<<<<<<< HEAD
 import { LinearGradient } from 'react-text-gradients'
+=======
+
+
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,8 +15,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import Image from 'next/image'
+<<<<<<< HEAD
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+=======
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -25,7 +33,10 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage, Form } from "@/components/ui/form"
+<<<<<<< HEAD
 import { Input } from '@/components/ui/input'
+=======
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
@@ -40,12 +51,16 @@ export default function IndexPage() {
 export function BridgeCard() {
   const [blockchain1, setBlockchain1] = useState('');
   const [blockchain2, setBlockchain2] = useState('');
+<<<<<<< HEAD
   const [token1, setToken1] = useState('');
   const [token2, setToken2] = useState('');
+=======
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
 
 
   return (
 
+<<<<<<< HEAD
 
     <section className="container flex items-center justify-center gap-6 pb-8 pt-6 md:py-10 h-screen">
       <div className="flex-1 transform -translate-y-9">
@@ -171,5 +186,52 @@ export function BridgeCard() {
       </div>
 
     </section>
+=======
+    <section className="container grid items-center justify-center gap-6 pb-8 pt-6 md:py-10 flex h-screen">
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>Bridge</CardTitle>
+          <CardDescription>Seamlessly send your assets across chains.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="blockchain1">Blockchain 1</Label>
+                <Select>
+                  <SelectTrigger id="blockchain1">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="ethereum" onClick={() => setBlockchain1('ethereum')}>Ethereum</SelectItem>
+                    <SelectItem value="bitcoin" onClick={() => setBlockchain1('bitcoin')}>Bitcoin</SelectItem>
+                    <SelectItem value="cardano" onClick={() => setBlockchain1('cardano')}>Cardano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="blockchain1">Blockchain 1</Label>
+                <Select>
+                  <SelectTrigger id="blockchain2">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="ethereum" onClick={() => setBlockchain2('ethereum')}>Ethereum</SelectItem>
+                    <SelectItem value="bitcoin" onClick={() => setBlockchain2('bitcoin')}>Bitcoin</SelectItem>
+                    <SelectItem value="cardano" onClick={() => setBlockchain2('cardano')}>Cardano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline">Cancel</Button>
+          <Button>Deploy</Button>
+        </CardFooter>
+       
+      </Card>
+        </section>
+>>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
   )
 }
