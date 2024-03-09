@@ -34,7 +34,7 @@ contract Gateway is Ownable {
     function sendToken(uint amount) public {
         coinContract.burnFrom(msg.sender, amount);
         bytes memory transferPayload = abi.encodeWithSignature("receiveToken(address,uint)", msg.sender, amount);
-        relayerContract.requestRelay(relayTarget, transferPayload, address(0), 0);
+        relayerContract.requestRelay(relayTarget, transferPayload, address(coinContract), 0);
     }
 
     function receiveToken(address to, uint amount, EVMTransaction.Proof calldata transaction) public {
