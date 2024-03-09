@@ -16,10 +16,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-alert-dialog": "^1.0.5",
-<<<<<<< HEAD
     "@radix-ui/react-avatar": "^1.0.4",
-=======
->>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
@@ -33,10 +30,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.0",
-<<<<<<< HEAD
     "react-text-gradients": "^1.0.2",
-=======
->>>>>>> 0d4e8702a2683b055867cca5de6253e4fc4509dd
     "sharp": "^0.31.3",
     "tailwind-merge": "^1.13.2",
     "tailwindcss-animate": "^1.0.6",
