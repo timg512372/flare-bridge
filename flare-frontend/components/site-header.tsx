@@ -1,6 +1,5 @@
 "use client"
 import Link from "next/link"
-
 import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
@@ -36,7 +35,7 @@ export function SiteHeader() {
             {address ? (
               <><AlertDialog>
                 <AlertDialogTrigger>
-                  <Button>
+                <Button className={` ${buttonVariants()}`}>
                     Connected
                     <span className="ml-2 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
                   </Button>
@@ -47,15 +46,14 @@ export function SiteHeader() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => disconnect()}>Disconnect</AlertDialogAction>
+                    <AlertDialogAction className="bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl" onClick={() => disconnect()}>Disconnect</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
               </>
             ) : (
-              <Button onClick={() => open()}>Connect Wallet</Button>
-            )}
-            <ThemeToggle />
+              <Button className={`bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl`} onClick={() => open()}>Connect Wallet</Button>                   
+              )}
           </nav>
         </div>
       </div>
