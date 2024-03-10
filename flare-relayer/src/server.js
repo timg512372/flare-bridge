@@ -107,6 +107,7 @@ contract.on("RelayRequested", async (...parameters) => {
     return;
   }
   console.log("  Received Merkle proof:", proof.data.merkleProof);
+  console.log(proof.data.response.responseBody);
 });
 
 async function waitForProof(proofRequest) {
