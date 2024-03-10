@@ -59,9 +59,8 @@ contract Gateway is Ownable {
 
     function isBurnProofValid(EVMTransaction.Proof calldata transaction, address tokenAddress, address to, uint amount) internal returns (bool)
     {
-        // TODO: GET RID OF THIS TRUE IN DEPLOYMENT
         require(
-            true || isEVMTransactionProofValid(transaction),
+            isEVMTransactionProofValid(transaction),
             "Invalid proof"
         );
         
@@ -76,7 +75,6 @@ contract Gateway is Ownable {
             _event.topics[0] == keccak256("Transfer(address,address,uint256)"),
             "Invalid event"
         );
-        // _event.emitterAddress should be the contract we "trust" to correctly call the ERC20 token
 
         (uint256 burned_tokens) = abi.decode(
             _event.data,
@@ -96,7 +94,8 @@ contract Gateway is Ownable {
         );
         require(address(0) == burnee, "Did not burn token");
 
-        // require(_event.emitterAddress == tokenAddress, "Invalid token address");
+        require(_event.emitterAddress == tokenAddress, "Invalid token address");
+        require(_event.emitterAddress == bridgedCoinContract, "Invalid token address");
 
         return true;
     }

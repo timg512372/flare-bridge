@@ -56,87 +56,93 @@ const oppositeChainRelayContract = new ethers.Contract(
 
 console.log("Listening...");
 sameChainRelayContract.on("RelayRequested", async (...parameters) => {
-  console.log(`Transfer event detected`);
-  console.log(parameters);
-  const event = parameters[parameters.length - 1];
+  try {
+    console.log(`Transfer event detected`);
+    console.log(parameters);
+    const event = parameters[parameters.length - 1];
 
-  // Call the attestation provider API
-  const utils = await import(
-    `${FLARE_CONTRACTS}/dist/coston/StateConnector/libs/ts/utils.js`
-  );
+    // Call the attestation provider API
+    const utils = await import(
+      `${FLARE_CONTRACTS}/dist/coston/StateConnector/libs/ts/utils.js`
+    );
 
-  const abiEncodedAttestation = await waitForAttestation(
-    event.log.transactionHash
-  );
+    const abiEncodedAttestation = await waitForAttestation(
+      event.log.transactionHash
+    );
 
-  const stateConnector = await getStateConnector();
-  const attestationTx = await stateConnector.requestAttestations(
-    abiEncodedAttestation
-  );
-  const receipt = await attestationTx.wait();
-  const block = await costonProvider.getBlock(receipt.blockNumber);
+    const stateConnector = await getStateConnector();
+    const attestationTx = await stateConnector.requestAttestations(
+      abiEncodedAttestation
+    );
+    const receipt = await attestationTx.wait();
+    const block = await costonProvider.getBlock(receipt.blockNumber);
 
-  // calculate round ID
-  const roundOffset = await stateConnector.BUFFER_TIMESTAMP_OFFSET();
-  const roundDuration = await stateConnector.BUFFER_WINDOW();
-  const submissionRoundID = Number(
-    (BigInt(block.timestamp) - roundOffset) / roundDuration
-  );
-  console.log(
-    `Submission round ID: ${submissionRoundID} (offset: ${roundOffset}, duration: ${roundDuration})`
-  );
+    // calculate round ID
+    const roundOffset = await stateConnector.BUFFER_TIMESTAMP_OFFSET();
+    const roundDuration = await stateConnector.BUFFER_WINDOW();
+    const submissionRoundID = Number(
+      (BigInt(block.timestamp) - roundOffset) / roundDuration
+    );
+    console.log(
+      `Submission round ID: ${submissionRoundID} (offset: ${roundOffset}, duration: ${roundDuration})`
+    );
 
-  // Wait for attestation round to finalize
-  var prevFinalizedRoundID = -1;
-  let lastFinalizedRoundID = 0;
-  while (lastFinalizedRoundID < submissionRoundID) {
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    // Wait for attestation round to finalize
+    var prevFinalizedRoundID = -1;
+    let lastFinalizedRoundID = 0;
+    while (lastFinalizedRoundID < submissionRoundID) {
+      await new Promise((resolve) => setTimeout(resolve, 10000));
 
-    lastFinalizedRoundID = Number(await stateConnector.lastFinalizedRoundId());
+      lastFinalizedRoundID = Number(
+        await stateConnector.lastFinalizedRoundId()
+      );
 
-    if (prevFinalizedRoundID != lastFinalizedRoundID) {
-      console.log("  Last finalized round is", lastFinalizedRoundID);
-      prevFinalizedRoundID = lastFinalizedRoundID;
+      if (prevFinalizedRoundID != lastFinalizedRoundID) {
+        console.log("  Last finalized round is", lastFinalizedRoundID);
+        prevFinalizedRoundID = lastFinalizedRoundID;
+      }
     }
+    // 8. Retrieve Merkle Proof
+    console.log("Retrieving proof from attestation provider...");
+
+    proof = await waitForProof({
+      roundId: submissionRoundID,
+      requestBytes: abiEncodedAttestation,
+    });
+
+    if (proof == null) {
+      console.log("Proof not found");
+      return;
+    }
+    console.log("  Received Merkle proof:", proof.data.merkleProof);
+    console.log(proof.data.response.responseBody);
+
+    const bridgedResult = await oppositeChainRelayContract.executeRelay(
+      {
+        uid: parameters[0],
+        amount: 0,
+        relayInitiator:
+          network == "coston"
+            ? process.env.COSTON_RELAY
+            : process.env.SEPOLIA_RELAY,
+        relayTarget:
+          network == "coston"
+            ? process.env.SEPOLIA_GATEWAY
+            : process.env.COSTON_GATEWAY,
+        additionalCalldata: encodeCalldata(proof),
+        sourceToken: parameters[4],
+        targetToken: parameters[5],
+        executionResult: 1,
+        relayDataHash:
+          "0x62c8a6fcd17a2b8e1b18d2e98f0c9fb0aa72719107a1a3bc07b9e1eb18c394ce",
+      },
+      { gasLimit: 10000000 }
+    );
+    const bridgedReceipt = await bridgedResult.wait();
+    console.log(bridgedReceipt);
+  } catch (error) {
+    console.log(error);
   }
-  // 8. Retrieve Merkle Proof
-  console.log("Retrieving proof from attestation provider...");
-
-  proof = await waitForProof({
-    roundId: submissionRoundID,
-    requestBytes: abiEncodedAttestation,
-  });
-
-  if (proof == null) {
-    console.log("Proof not found");
-    return;
-  }
-  console.log("  Received Merkle proof:", proof.data.merkleProof);
-  console.log(proof.data.response.responseBody);
-
-  const bridgedResult = await oppositeChainRelayContract.executeRelay(
-    {
-      uid: parameters[0],
-      amount: 0,
-      relayInitiator:
-        network == "coston"
-          ? process.env.COSTON_RELAY
-          : process.env.SEPOLIA_RELAY,
-      relayTarget:
-        network == "coston"
-          ? process.env.SEPOLIA_GATEWAY
-          : process.env.COSTON_GATEWAY,
-      additionalCalldata: encodeCalldata(proof),
-      sourceToken: parameters[4],
-      targetToken: parameters[5],
-      executionResult: 1,
-      relayDataHash:
-        "0x62c8a6fcd17a2b8e1b18d2e98f0c9fb0aa72719107a1a3bc07b9e1eb18c394ce",
-    },
-    { gasLimit: 10000000 }
-  );
-  const bridgedReceipt = await bridgedResult.wait();
-  console.log(bridgedReceipt);
 });
 
 function encodeCalldata(proof) {
