@@ -4,12 +4,12 @@ const rawAttestationRequest = {
   attestationType:
     "0x45564d5472616e73616374696f6e000000000000000000000000000000000000",
   sourceId:
-    "0x7465737445544800000000000000000000000000000000000000000000000000",
+    "0x7465737453474200000000000000000000000000000000000000000000000000",
   requestBody: {
     transactionHash:
-      "0x4ba5982d7f7a05def3b0cba19a61529fc731b0281262f1ae4b0bffefd0537750",
-    requiredConfirmations: "0",
-    provideInput: true,
+      "0x6e1452ffaf363e6bc0254adf5c50804f61e31935555f1b59dd43922ca20b49be",
+    requiredConfirmations: "1",
+    provideInput: false,
     listEvents: true,
     logIndices: [],
   },
@@ -18,7 +18,7 @@ const rawAttestationRequest = {
 console.log("Request:", rawAttestationRequest);
 
 const VERIFICATION_ENDPOINT =
-  "https://evm-verifier.flare.network/verifier/eth/EVMTransaction/prepareRequest";
+  "https://evm-verifier.flare.network/verifier/sgb/EVMTransaction/prepareRequest";
 
 async function request() {
   try {

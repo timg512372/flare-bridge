@@ -22,7 +22,7 @@ if (network != "sepolia" && network != "coston") {
 
 const VERIFICATION_ENDPOINT =
   `https://evm-verifier.flare.network/verifier/${
-    network == "sepolia" ? "eth" : "flr"
+    network == "sepolia" ? "eth" : "sgb"
   }` + `/EVMTransaction/prepareRequest`;
 const ATTESTATION_ENDPOINT =
   `https://attestation-coston.flare.network/attestation-client/api/proof/` +
@@ -197,7 +197,9 @@ async function waitForAttestation(txHash) {
     attestationType:
       "0x45564d5472616e73616374696f6e000000000000000000000000000000000000",
     sourceId:
-      "0x7465737445544800000000000000000000000000000000000000000000000000",
+      network == "sepolia"
+        ? "0x7465737445544800000000000000000000000000000000000000000000000000"
+        : "0x7465737453474200000000000000000000000000000000000000000000000000",
     requestBody: {
       transactionHash: txHash,
       requiredConfirmations: "0",

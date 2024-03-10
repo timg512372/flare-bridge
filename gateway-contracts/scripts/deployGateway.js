@@ -25,11 +25,10 @@ async function main() {
 
   console.log("Gateway address: ", gateway.target);
   if (hre.network.name == "sepolia") {
-    await gateway.setRelay(costonRelayer);
     await gateway.setBridgedCoinContract(costonCoin);
   } else {
-    await gateway.setRelay(sepoliaRelayer);
     await gateway.setBridgedCoinContract(sepoliaCoin);
   }
+  await gateway.setRelay("0xB1766787e2241578C9df8793b7874d3F3d32acd1");
 }
 main().then(() => process.exit(0));
