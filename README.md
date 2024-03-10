@@ -19,18 +19,21 @@ cd gateway-contracts
 
 npx hardhat run scripts/deployCoin.js --network sepolia
 
- npx hardhat run scripts/deployCoin.js --network coston
+npx hardhat run scripts/deployCoin.js --network coston
+
+
+etc...
+
 ```
 
-## Start Relayer
+## AWS
 
 ```bash
-cd flare-relayer-main
+pm2 report
 
-pip install requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-eval export $(cat .env) | python manage.py start_relay sepolia
-eval export $(cat .env) | python manage.py start_relay coston
+pm2 start "node src/server.js sepolia" -n sepolia
+
+pm2 start "node src/server.js coston" -n coston
+
 
 ```
