@@ -86,22 +86,25 @@ export function BridgeCard() {
       args: [address ? address : '0x', BigInt(amount)],
       chainId: blockchain1 == 'Sepolia' ? sepolia.id : songbirdTestnet.id
     } as const
-    
-    await writeContract(approve, {onSuccess: () => {
-      console.log("Tx succesful")
-      writeContract({
-      abi: gt_abi,
-      address: blockchain1 == 'Sepolia' ? '0x0c2eFE1D385151870B3fFb9901B7a0FB1C5a1314' : '0x8b1274d063593F0973afF1710EA4490BE67AE9f2',
-      functionName: 'sendToken',
-      args: [BigInt(amount)],
-      chainId: blockchain1 == 'Sepolia' ? sepolia.id : songbirdTestnet.id
-    } as const, {onSuccess: () => {console.log('Tx succesful again')}}
-  )}})
-    
+
+    await writeContract(approve, {
+      onSuccess: () => {
+        console.log("Tx succesful")
+        writeContract({
+          abi: gt_abi,
+          address: blockchain1 == 'Sepolia' ? '0x0c2eFE1D385151870B3fFb9901B7a0FB1C5a1314' : '0x8b1274d063593F0973afF1710EA4490BE67AE9f2',
+          functionName: 'sendToken',
+          args: [BigInt(amount)],
+          chainId: blockchain1 == 'Sepolia' ? sepolia.id : songbirdTestnet.id
+        } as const, { onSuccess: () => { console.log('Tx succesful again') } }
+        )
+      }
+    })
+
     console.log('submit')
     console.log(blockchain1, blockchain2, token1, token2, amount)
     address ? console.log(address) : console.log('no address')
-    
+
   }
 
   // useEffect(() => {
@@ -152,7 +155,7 @@ export function BridgeCard() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        <SelectItem value="token1" onClick={() => setToken1('Sepolia B@B Coin')}>B@B Coin</SelectItem>
+                        <SelectItem value="token1" onClick={() => setToken2('Sepolia B@B Coin')}>B@B Coin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -168,7 +171,7 @@ export function BridgeCard() {
                       </SelectTrigger>
                       <SelectContent position="popper">
                         <SelectItem value="Sepolia" onClick={() => setBlockchain1('Sepolia')}>Sepolia</SelectItem>
-                        <SelectItem value="Couston" onClick={() => setBlockchain1('Couston')}>Couston</SelectItem>
+                        <SelectItem value="Couston" onClick={() => setBlockchain1('Couston')}>Coston</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -180,12 +183,17 @@ export function BridgeCard() {
 
             </form>
           </CardContent>
+          { (token2 || token1) && (
+            <Label htmlFor="blockchain1" className="pl-6 pt-3 justify-self-start">
+              B@B Tokens: {<ReadContract />}
+            </Label>
+          )}
           <CardFooter className="flex justify-between">
             <Input
               type="number"
               className="rounded-xl border-black"
               placeholder="Amount 0.0000"
-              value={amount}
+              value={amount === 0 ? "" : amount}
               onChange={(e) => setAmount(Number(e.target.value))}
             />
           </CardFooter>
@@ -218,7 +226,7 @@ export function BridgeCard() {
                       </SelectTrigger>
                       <SelectContent position="popper">
                         <SelectItem value="Sepolia" onClick={() => setBlockchain2('Sepolia')}>Sepolia</SelectItem>
-                        <SelectItem value="Couston" onClick={() => setBlockchain2('Couston')}>Couston</SelectItem>
+                        <SelectItem value="Couston" onClick={() => setBlockchain2('Couston')}>Coston</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -235,9 +243,10 @@ export function BridgeCard() {
               type="number"
               className="rounded-xl border-black"
               placeholder="Amount 0.0000"
-              value={amount}
+              value={amount === 0 ? "" : amount}
               onChange={(e) => setAmount(Number(e.target.value))}
-            />          </CardFooter>
+            />
+          </CardFooter>
           <div className='grid grid-cols-2 flex justify-between'>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">Gas on Destination</Label>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">Add</Label>
@@ -253,7 +262,6 @@ export function BridgeCard() {
           </CardFooter>
 
         </Card>
-        <ReadContract />
 
 
 
