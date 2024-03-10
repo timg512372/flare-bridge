@@ -26,7 +26,6 @@ describe("Gateway", function () {
 
     const Gateway = await ethers.getContractFactory("Gateway");
     const gateway = await Gateway.deploy(relayGateway.target, token.target);
-
     console.log(relayGateway.target);
     console.log(otherAccount.address);
     await gateway.setRelay(otherAccount.address);

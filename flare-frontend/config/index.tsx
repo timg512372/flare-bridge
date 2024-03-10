@@ -1,6 +1,6 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
 
-import { cookieStorage, createStorage } from 'wagmi'
+import { cookieStorage, createStorage, http } from 'wagmi'
 import { songbirdTestnet, sepolia } from 'wagmi/chains'
 
 // Get projectId at https://cloud.walletconnect.com
@@ -18,6 +18,10 @@ const metadata = {
 // Create wagmiConfig
 export const config = defaultWagmiConfig({
   chains: [songbirdTestnet, sepolia], // required
+  transports: {
+    [songbirdTestnet.id]: http(),
+    [sepolia.id]: http(),
+  },
   projectId, // required
   metadata, // required
   ssr: true,
@@ -28,4 +32,5 @@ export const config = defaultWagmiConfig({
   enableInjected: true, // Optional - true by default
   enableEIP6963: true, // Optional - true by default
   enableCoinbase: true, // Optional - true by default
+  
 })
