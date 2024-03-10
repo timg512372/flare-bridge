@@ -1,6 +1,6 @@
 import { abi } from '@/config/abi';
 import { useAccount, useDisconnect, useEnsAvatar, useEnsName, useReadContract } from 'wagmi'
-import { mainnet, songbirdTestnet } from 'wagmi/chains';
+import { mainnet, sepolia, songbirdTestnet } from 'wagmi/chains';
 
 export function ReadContract() {
     const { address } = useAccount()
@@ -13,7 +13,6 @@ export function ReadContract() {
     functionName: 'balanceOf',
     address: '0x5187763e09a672eda81F27e622129Ac28393ca53',
     args: address ? [address] : undefined,
-
   })
 
   return (

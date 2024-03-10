@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import React from "react";
+import React, { useEffect } from "react";
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -28,7 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage, Form } from "@/components/ui/form"
 import { Input } from '@/components/ui/input'
-import { WagmiProvider, useAccount, useWriteContract } from 'wagmi'
+import { WagmiProvider, useAccount, useWaitForTransactionReceipt, useWriteContract, http, createConfig } from 'wagmi'
 import { config } from '../config'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import ReadContract from '@/components/read_contract'
@@ -37,7 +37,9 @@ import { SendTransaction } from '@/components/write_contract'
 import { toast } from '@/components/ui/use-toast'
 import { useDisconnect, useEnsAvatar, useEnsName, useReadContract } from 'wagmi'
 import { abi } from '@/config/abi'
-import { writeContract } from 'viem/actions'
+
+import { gt_abi } from '@/config/gt_abi'
+import { songbirdTestnet, sepolia } from 'wagmi/chains'
 
 const queryClient = new QueryClient()
 
@@ -71,32 +73,49 @@ export function BridgeCard() {
   const [token1, setToken1] = useState('');
   const [token2, setToken2] = useState('');
   const [amount, setAmount] = useState(0);
-  const { writeContract } = useWriteContract()
+  const { data: hash, isPending, writeContract } = useWriteContract()
+
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash })
 
 
   async function onSubmit() {
-    const result = await writeContract({
+    const approve = {
       abi,
-      address: '0x5187763e09a672eda81F27e622129Ac28393ca53',
+      address: blockchain1 == 'Sepolia' ? '0x5187763e09a672eda81F27e622129Ac28393ca53' : '0x8c49e01E86d9ef98eA963Be48B1E41297E06F817',
       functionName: 'approve',
-      args: [address ? address : '0x', BigInt(amount)]
-    })
-
-    console.log(result);
-    if (result != undefined || result != null) {
-      console.log('result', result);
-    } else {
-      console.log('no result');
-    }
-  
+      args: [address ? address : '0x', BigInt(amount)],
+      chainId: blockchain1 == 'Sepolia' ? sepolia.id : songbirdTestnet.id
+    } as const
+    
+    await writeContract(approve, {onSuccess: () => {
+      console.log("Tx succesful")
+      writeContract({
+      abi: gt_abi,
+      address: blockchain1 == 'Sepolia' ? '0x0c2eFE1D385151870B3fFb9901B7a0FB1C5a1314' : '0x8b1274d063593F0973afF1710EA4490BE67AE9f2',
+      functionName: 'sendToken',
+      args: [BigInt(amount)],
+      chainId: blockchain1 == 'Sepolia' ? sepolia.id : songbirdTestnet.id
+    } as const, {onSuccess: () => {console.log('Tx succesful again')}}
+  )}})
+    
     console.log('submit')
     console.log(blockchain1, blockchain2, token1, token2, amount)
     address ? console.log(address) : console.log('no address')
-      
-    if(result != undefined && result == true) {
-      console.log('result', result);
-    }
+    
   }
+
+  // useEffect(() => {
+
+  //   async function sample() {
+  //     await wc2.
+
+  //   if (isSuccess) {
+  //     console.log('Transaction successful')
+  //     sample()
+  //   }
+
+  // }, [isSuccess])
+
   return (
     <section className="container flex items-center justify-center gap-6 pb-8 pt-6 md:py-10 h-screen ">
       <div className="flex-1 transform translate-x-56 pb-96">
