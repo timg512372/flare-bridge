@@ -42,14 +42,20 @@ const sepoliaSigner = new ethers.Wallet(
   sepoliaProvider
 );
 
-const contract = new ethers.Contract(
+const sameChainRelayContract = new ethers.Contract(
   network == "coston" ? process.env.COSTON_RELAY : process.env.SEPOLIA_RELAY,
   relayJSON.abi,
   provider
 );
 
+const oppositeChainRelayContract = new ethers.Contract(
+  network != "coston" ? process.env.COSTON_RELAY : process.env.SEPOLIA_RELAY,
+  relayJSON.abi,
+  network != "coston" ? costonSigner : sepoliaSigner
+);
+
 console.log("Listening...");
-contract.on("RelayRequested", async (...parameters) => {
+sameChainRelayContract.on("RelayRequested", async (...parameters) => {
   console.log(`Transfer event detected`);
   console.log(parameters);
   const event = parameters[parameters.length - 1];
@@ -94,7 +100,6 @@ contract.on("RelayRequested", async (...parameters) => {
     }
   }
   // 8. Retrieve Merkle Proof
-
   console.log("Retrieving proof from attestation provider...");
 
   proof = await waitForProof({
@@ -108,7 +113,59 @@ contract.on("RelayRequested", async (...parameters) => {
   }
   console.log("  Received Merkle proof:", proof.data.merkleProof);
   console.log(proof.data.response.responseBody);
+
+  const bridgedResult = await oppositeChainRelayContract.executeRelay(
+    {
+      uid: parameters[0],
+      amount: 0,
+      relayInitiator:
+        network == "coston"
+          ? process.env.COSTON_RELAY
+          : process.env.SEPOLIA_RELAY,
+      relayTarget:
+        network == "coston"
+          ? process.env.SEPOLIA_GATEWAY
+          : process.env.COSTON_GATEWAY,
+      additionalCalldata: encodeCalldata(proof),
+      sourceToken: parameters[4],
+      targetToken: parameters[5],
+      executionResult: 1,
+      relayDataHash:
+        "0x62c8a6fcd17a2b8e1b18d2e98f0c9fb0aa72719107a1a3bc07b9e1eb18c394ce",
+    },
+    { gasLimit: 10000000 }
+  );
+  const bridgedReceipt = await bridgedResult.wait();
+  console.log(bridgedReceipt);
 });
+
+function encodeCalldata(proof) {
+  const fullProof = {
+    merkleProof: proof.data.merkleProof,
+    data: {
+      ...proof.data,
+      ...proof.data.request,
+      ...proof.data.response,
+      status: proof.status,
+    },
+  };
+
+  const receiver = proof.data.response.responseBody.events[0].topics[1];
+  abiCoder = ethers.AbiCoder.defaultAbiCoder();
+  address = abiCoder.decode(["address"], receiver)[0];
+  amount = abiCoder.decode(
+    ["uint"],
+    proof.data.response.responseBody.events[0].data
+  )[0];
+
+  let iface = new ethers.Interface(gatewayJSON.abi);
+  let calldata = iface.encodeFunctionData("receiveToken", [
+    address,
+    amount,
+    fullProof,
+  ]);
+  return calldata;
+}
 
 async function waitForProof(proofRequest) {
   for (let i = 0; i < 10; i++) {
@@ -215,3 +272,12 @@ async function getStateConnector() {
 
   return stateConnector;
 }
+
+// [
+//   31n,
+//   '0x381222903c017a170158C06E7A0b394E3C9A1c1F',
+//   '0x0000000000000000000000000000000000000000',
+//   '0x2a7e581800000000000000000000000020e43cadc9961edfc61170eeef66d571c5993dfc0000000000000000000000000000000000000000000000000000000000000001',
+//   '0x5187763e09a672eda81F27e622129Ac28393ca53',
+//   '0x8c49e01E86d9ef98eA963Be48B1E41297E06F817',
+//   0n,
