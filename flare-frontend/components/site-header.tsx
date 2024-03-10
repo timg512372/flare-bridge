@@ -6,7 +6,7 @@ import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useWeb3Modal } from "@web3modal/wagmi/react"
-import { useAccount, useDisconnect } from "wagmi"
+import { WagmiProvider, useAccount, useDisconnect } from "wagmi"
 import { Label } from "@radix-ui/react-label"
 import {
   AlertDialog,
@@ -19,6 +19,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { config } from '../config' 
+const queryClient = new QueryClient() 
 
 export function SiteHeader() {
   const { open } = useWeb3Modal();
@@ -27,6 +30,8 @@ export function SiteHeader() {
 
 
   return (
+    <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}> 
     <header className="bg-transparent sticky top-0 z-40 w-full ">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
@@ -58,6 +63,8 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+    </QueryClientProvider> 
+    </WagmiProvider>
   )
 }
 export function ConnectButton() {

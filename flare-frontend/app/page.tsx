@@ -28,38 +28,80 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage, Form } from "@/components/ui/form"
 import { Input } from '@/components/ui/input'
-import { WagmiProvider } from 'wagmi' 
-import { config } from '../config' 
+import { WagmiProvider, useAccount, useWriteContract } from 'wagmi'
+import { config } from '../config'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import ReadContract from '@/components/read_contract'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { SendTransaction } from '@/components/write_contract'
+import { toast } from '@/components/ui/use-toast'
+import { useDisconnect, useEnsAvatar, useEnsName, useReadContract } from 'wagmi'
+import { abi } from '@/config/abi'
+import { writeContract } from 'viem/actions'
 
-const queryClient = new QueryClient() 
+const queryClient = new QueryClient()
 
 
 export default function IndexPage() {
   return (
-<WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}> 
-      <BridgeCard />
-      </QueryClientProvider> 
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <BridgeCard />
+      </QueryClientProvider>
     </WagmiProvider>
-    
+
   )
 }
 
 export function BridgeCard() {
+  const FormSchema = z.object({
+    token1: z.string().nonempty({ message: "Please select a token." }),
+    token2: z.string().nonempty({ message: "Please select a token." }),
+    blockchain1: z.string().nonempty({ message: "Please select a blockchain." }),
+    blockchain2: z.string().nonempty({ message: "Please select a blockchain." }),
+  });
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  const { address } = useAccount()
   const [blockchain1, setBlockchain1] = useState('');
   const [blockchain2, setBlockchain2] = useState('');
   const [token1, setToken1] = useState('');
   const [token2, setToken2] = useState('');
+  const [amount, setAmount] = useState(0);
+  const { writeContract } = useWriteContract()
 
 
+  async function onSubmit() {
+    const result = await writeContract({
+      abi,
+      address: '0x5187763e09a672eda81F27e622129Ac28393ca53',
+      functionName: 'approve',
+      args: [address ? address : '0x', BigInt(amount)]
+    })
+
+    console.log(result);
+    if (result != undefined || result != null) {
+      console.log('result', result);
+    } else {
+      console.log('no result');
+    }
+  
+    console.log('submit')
+    console.log(blockchain1, blockchain2, token1, token2, amount)
+    address ? console.log(address) : console.log('no address')
+      
+    if(result != undefined && result == true) {
+      console.log('result', result);
+    }
+  }
   return (
-
-
     <section className="container flex items-center justify-center gap-6 pb-8 pt-6 md:py-10 h-screen ">
       <div className="flex-1 transform translate-x-56 pb-96">
         <h1 className="text-3xl font-extrabold leading-tight tracking-normal md:text-5xl">
-            <LinearGradient gradient={['to bottom right', '#E3BCB0 ,#E4A8B8, #93AADC']}>
+          <LinearGradient gradient={['to bottom right', '#E3BCB0 ,#E4A8B8, #93AADC']}>
             Bridge.
           </LinearGradient>
 
@@ -85,7 +127,6 @@ export function BridgeCard() {
 
                     <Label htmlFor="token1" className="pl-3 pt-3">Token</Label>
                     <Select>
-                 
 
 
                       <SelectTrigger id="token1" className="bg-transparent border-transparent font-bold text-lg h-5">
@@ -93,7 +134,6 @@ export function BridgeCard() {
                       </SelectTrigger>
                       <SelectContent position="popper">
                         <SelectItem value="token1" onClick={() => setToken1('Sepolia B@B Coin')}>B@B Coin</SelectItem>
-                        <SelectItem value="token2" onClick={() => setToken1('Couston B@B Coin')}>B@B Coin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -103,7 +143,7 @@ export function BridgeCard() {
 
                   <div className="flex flex-col space-y-1.5 ">
                     <Label htmlFor="blockchain1" className="pl-3 pt-3">Network</Label>
-                    <Select>
+                    <Select onValueChange={(v) => setBlockchain1(v)}>
                       <SelectTrigger id="blockchain1" className="bg-transparent border-transparent font-bold text-lg h-5">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
@@ -122,8 +162,13 @@ export function BridgeCard() {
             </form>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Input type="email" className="rounded-xl border-black" placeholder="Amount 0.0000" >
-            </Input>
+            <Input
+              type="number"
+              className="rounded-xl border-black"
+              placeholder="Amount 0.0000"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />
           </CardFooter>
           <CardHeader>
             <CardTitle>To</CardTitle>
@@ -134,13 +179,12 @@ export function BridgeCard() {
                 <div className="grid grid-cols-3 gap-4 bg-gradient-to-r p-[6px] from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 rounded-xl">
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="token2" className="pl-3 pt-3">Token</Label>
-                    <Select>
+                    <Select onValueChange={(v) => setToken2(v)}>
                       <SelectTrigger id="token2" className="bg-transparent border-transparent font-bold text-lg h-5">
                         <SelectValue placeholder="Select" className="font-bold" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                      <SelectItem value="token1" onClick={() => setToken2('Sepolia B@B Coin')}>B@B Coin</SelectItem>
-                        <SelectItem value="token2" onClick={() => setToken2('Couston B@B Coin')}>B@B Coin</SelectItem>
+                        <SelectItem value="token1" onClick={() => setToken2('Sepolia B@B Coin')}>B@B Coin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -149,12 +193,12 @@ export function BridgeCard() {
                   </div>
                   <div className="flex flex-col space-y-1.5 ">
                     <Label htmlFor="blockchain1" className="pl-3 pt-3">Network</Label>
-                    <Select>
+                    <Select onValueChange={(v) => setBlockchain2(v)}>
                       <SelectTrigger id="blockchain2" className="bg-transparent border-transparent font-bold text-lg h-5">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                      <SelectItem value="Sepolia" onClick={() => setBlockchain2('Sepolia')}>Sepolia</SelectItem>
+                        <SelectItem value="Sepolia" onClick={() => setBlockchain2('Sepolia')}>Sepolia</SelectItem>
                         <SelectItem value="Couston" onClick={() => setBlockchain2('Couston')}>Couston</SelectItem>
                       </SelectContent>
                     </Select>
@@ -165,12 +209,16 @@ export function BridgeCard() {
               </div>
             </form>
           </CardContent>
-          
+
 
           <CardFooter className="flex justify-between">
-            <Input type="email" className="rounded-xl border-black" placeholder="Amount 0.0000" ></Input>
-
-          </CardFooter>
+            <Input
+              type="number"
+              className="rounded-xl border-black"
+              placeholder="Amount 0.0000"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />          </CardFooter>
           <div className='grid grid-cols-2 flex justify-between'>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">Gas on Destination</Label>
             <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">Add</Label>
@@ -182,11 +230,11 @@ export function BridgeCard() {
 
           </div>
           <CardFooter className="flex justify-between">
-            <Button className={` w-full bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 rounded-full`} onClick={() => open()}>Connect</Button>
+            <Button className={` w-full bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 rounded-full`} onClick={() => onSubmit()}>Connect</Button>
           </CardFooter>
 
         </Card>
-
+        <ReadContract />
 
 
 
