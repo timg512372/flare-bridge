@@ -56,7 +56,6 @@ import {
 import { toast } from "@/components/ui/use-toast"
 import ReadContract from "@/components/read_contract"
 
-
 import { config } from "../config"
 
 const queryClient = new QueryClient()
@@ -82,7 +81,42 @@ export default function IndexPage() {
   const [blockchain2, setBlockchain2] = useState("")
   const [token1, setToken1] = useState("")
   const [token2, setToken2] = useState("")
+  const [sepTokens, setSepTokens] = useState("")
+  const [costonTokens, setCostonTokens] = useState("")
+
   const [amount, setAmount] = useState(0)
+
+  const { data: ensName } = useEnsName({ address })
+  const { data: ensAvatar } = useEnsAvatar({ name: ensName! })
+
+  const sepData = (useReadContract as any)({
+    abi,
+    functionName: "balanceOf",
+    address: "0x5187763e09a672eda81F27e622129Ac28393ca53",
+    args: address ? [address] : undefined,
+    chainId: sepolia.id,
+  })
+
+  const costonData = (useReadContract as any)({
+    abi,
+    functionName: "balanceOf",
+    address: "0x8c49e01E86d9ef98eA963Be48B1E41297E06F817",
+    args: address ? [address] : undefined,
+    chainId: songbirdTestnet.id,
+  })
+
+  useEffect(() => {
+    if (sepData && sepData.data) {
+      setSepTokens(((sepData.data ?? 0n) / 10n ** 18n).toString())
+    }
+  }, [sepData])
+
+  useEffect(() => {
+    if (costonData && costonData.data) {
+      setCostonTokens(((costonData.data ?? 0n) / 10n ** 18n).toString())
+    }
+  }, [costonData])
+
   const { data: hash, isPending, writeContract } = useWriteContract()
 
   async function onSubmit() {
@@ -102,9 +136,9 @@ export default function IndexPage() {
       chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
     } as const
 
-    (writeContract as any)(approve, {
+    ;(writeContract as any)(approve, {
       onSuccess: () => {
-        (writeContract as any)(
+        ;(writeContract as any)(
           {
             abi: gt_abi,
             address:
@@ -115,8 +149,7 @@ export default function IndexPage() {
             args: [BigInt(amount) / 10n ** 18n],
             chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
           } as const,
-          {
-          }
+          {}
         )
       },
     })
@@ -141,216 +174,244 @@ export default function IndexPage() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-      <section className="container flex h-screen items-center justify-center gap-6 pb-8 pt-6 md:py-10 ">
-      <div className="flex-1 translate-x-56 pb-96">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-normal md:text-5xl">
-          <LinearGradient
-            gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
-          >
-            Bridge.
-          </LinearGradient>
-        </h1>
-        <p className="max-w-[700px] pt-2 text-xl text-muted-foreground">
-          <LinearGradient
-            gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
-          >
-            Seamlessly send your assets <br className="hidden sm:inline" />
-            across chains.
-          </LinearGradient>
-        </p>
-      </div>
-      <div className="flex-1">
-        <Card className="w-[500px]">
-          <CardHeader>
-            <CardTitle>From</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form>
-              <div className="grid w-full items-center gap-4">
-                <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
-                  <div className="grid-col-3 grid space-y-1.5">
-                    <Label htmlFor="token1" className="pl-3 pt-3">
-                      Token
-                    </Label>
-                    <Select>
-                      <SelectTrigger
-                        id="token1"
-                        className="h-5 border-transparent bg-transparent text-lg font-bold"
-                      >
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem
-                          value="token1"
-                          onClick={() => setToken2("Sepolia B@B Coin")}
-                        >
-                          B@B Coin
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex h-full items-center justify-center">
-                    <hr
-                      style={{
-                        borderLeft: "1px solid white",
-                        height: "60px",
-                        width: "1px",
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1.5 ">
-                    <Label htmlFor="blockchain1" className="pl-3 pt-3">
-                      Network
-                    </Label>
-                    <Select onValueChange={(v) => setBlockchain1(v)}>
-                      <SelectTrigger
-                        id="blockchain1"
-                        className="h-5 border-transparent bg-transparent text-lg font-bold"
-                      >
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem
-                          value="Sepolia"
-                          onClick={() => setBlockchain1("Sepolia")}
-                        >
-                          Sepolia
-                        </SelectItem>
-                        <SelectItem
-                          value="Couston"
-                          onClick={() => setBlockchain1("Couston")}
-                        >
-                          Coston
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </CardContent>
-          { (token2 || token1) && (
-            <Label htmlFor="blockchain1" className="justify-self-start pl-3 pt-3">
-              B@B Tokens: {ReadContract()}
-            </Label>
-          )}
-          <CardFooter className="flex justify-between">
-            <Input
-              type="number"
-              className="rounded-xl border-black"
-              placeholder="Amount 0.0000"
-              value={amount === 0 ? "" : amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-          </CardFooter>
-          <CardHeader>
-            <CardTitle>To</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form>
-              <div className="grid w-full items-center gap-4">
-                <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="token2" className="pl-3 pt-3">
-                      Token
-                    </Label>
-                    <Select onValueChange={(v) => setToken2(v)}>
-                      <SelectTrigger
-                        id="token2"
-                        className="h-5 border-transparent bg-transparent text-lg font-bold"
-                      >
-                        <SelectValue
-                          placeholder="Select"
-                          className="font-bold"
+        <section className="container flex h-screen items-center justify-center gap-6 pb-8 pt-6 md:py-10 ">
+          <div className="flex-1 translate-x-56 pb-96">
+            <h1 className="text-3xl font-extrabold leading-tight tracking-normal md:text-5xl">
+              <LinearGradient
+                gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
+              >
+                Bridge.
+              </LinearGradient>
+            </h1>
+            <p className="max-w-[700px] pt-2 text-xl text-muted-foreground">
+              <LinearGradient
+                gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
+              >
+                Seamlessly send your assets <br className="hidden sm:inline" />
+                across chains.
+              </LinearGradient>
+            </p>
+          </div>
+          <div className="flex-1">
+            <Card className="w-[500px]">
+              <CardHeader>
+                <CardTitle>From</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div className="grid w-full items-center gap-4">
+                    <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
+                      <div className="grid-col-3 grid space-y-1.5">
+                        <Label htmlFor="token1" className="pl-3 pt-3">
+                          Token
+                        </Label>
+                        <Select>
+                          <SelectTrigger
+                            id="token1"
+                            className="h-5 border-transparent bg-transparent text-lg font-bold"
+                          >
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem
+                              value="token1"
+                              onClick={() => setToken2("Sepolia B@B Coin")}
+                            >
+                              B@B Coin
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex h-full items-center justify-center">
+                        <hr
+                          style={{
+                            borderLeft: "1px solid white",
+                            height: "60px",
+                            width: "1px",
+                          }}
                         />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem
-                          value="token1"
-                          onClick={() => setToken2("Sepolia B@B Coin")}
-                        >
-                          B@B Coin
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                      </div>
+
+                      <div className="flex flex-col space-y-1.5 ">
+                        <Label htmlFor="blockchain1" className="pl-3 pt-3">
+                          Network
+                        </Label>
+                        <Select onValueChange={(v) => setBlockchain1(v)}>
+                          <SelectTrigger
+                            id="blockchain1"
+                            className="h-5 border-transparent bg-transparent text-lg font-bold"
+                          >
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem
+                              value="Sepolia"
+                              onClick={() => setBlockchain1("Sepolia")}
+                            >
+                              Sepolia
+                            </SelectItem>
+                            <SelectItem
+                              value="Couston"
+                              onClick={() => setBlockchain1("Couston")}
+                            >
+                              Coston
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex h-full items-center justify-center">
-                    <hr
-                      style={{
-                        borderLeft: "1px solid white",
-                        height: "60px",
-                        width: "1px",
-                      }}
-                    />
+                </form>
+              </CardContent>
+              {
+                <Label
+                  htmlFor="blockchain1"
+                  className="justify-self-start pl-3 pt-3"
+                >
+                  B@B Tokens:{" "}
+                  {blockchain1 == "Sepolia" ? sepTokens : costonTokens}
+                </Label>
+              }
+              <CardFooter className="flex justify-between">
+                <Input
+                  type="number"
+                  className="rounded-xl border-black"
+                  placeholder="Amount 0.0000"
+                  value={amount === 0 ? "" : amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                />
+              </CardFooter>
+              <CardHeader>
+                <CardTitle>To</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div className="grid w-full items-center gap-4">
+                    <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="token2" className="pl-3 pt-3">
+                          Token
+                        </Label>
+                        <Select onValueChange={(v) => setToken2(v)}>
+                          <SelectTrigger
+                            id="token2"
+                            className="h-5 border-transparent bg-transparent text-lg font-bold"
+                          >
+                            <SelectValue
+                              placeholder="Select"
+                              className="font-bold"
+                            />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem
+                              value="token1"
+                              onClick={() => setToken2("Sepolia B@B Coin")}
+                            >
+                              B@B Coin
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex h-full items-center justify-center">
+                        <hr
+                          style={{
+                            borderLeft: "1px solid white",
+                            height: "60px",
+                            width: "1px",
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1.5 ">
+                        <Label htmlFor="blockchain1" className="pl-3 pt-3">
+                          Network
+                        </Label>
+                        <Select onValueChange={(v) => setBlockchain2(v)}>
+                          <SelectTrigger
+                            id="blockchain2"
+                            className="h-5 border-transparent bg-transparent text-lg font-bold"
+                          >
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem
+                              value="Sepolia"
+                              onClick={() => setBlockchain2("Sepolia")}
+                            >
+                              Sepolia
+                            </SelectItem>
+                            <SelectItem
+                              value="Couston"
+                              onClick={() => setBlockchain2("Couston")}
+                            >
+                              Coston
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col space-y-1.5 ">
-                    <Label htmlFor="blockchain1" className="pl-3 pt-3">
-                      Network
-                    </Label>
-                    <Select onValueChange={(v) => setBlockchain2(v)}>
-                      <SelectTrigger
-                        id="blockchain2"
-                        className="h-5 border-transparent bg-transparent text-lg font-bold"
-                      >
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem
-                          value="Sepolia"
-                          onClick={() => setBlockchain2("Sepolia")}
-                        >
-                          Sepolia
-                        </SelectItem>
-                        <SelectItem
-                          value="Couston"
-                          onClick={() => setBlockchain2("Couston")}
-                        >
-                          Coston
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                </form>
+              </CardContent>
+              {
+                <Label
+                  htmlFor="blockchain2"
+                  className="justify-self-start pl-3 pt-3"
+                >
+                  B@B Tokens:{" "}
+                  {blockchain2 == "Sepolia" ? sepTokens : costonTokens}
+                </Label>
+              }
+
+              <CardFooter className="flex justify-between">
+                <Input
+                  type="number"
+                  className="rounded-xl border-black"
+                  placeholder="Amount 0.0000"
+                  value={amount === 0 ? "" : amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                />
+              </CardFooter>
+              <div className="grid grid-cols-2 justify-between">
+                <Label
+                  htmlFor="blockchain1"
+                  className="justify-self-start pl-3 pt-3"
+                >
+                  Gas on Destination
+                </Label>
+                <Label
+                  htmlFor="blockchain1"
+                  className="justify-self-end pl-3 pr-4 pt-3"
+                >
+                  Add
+                </Label>
               </div>
-            </form>
-          </CardContent>
+              <div className="grid grid-cols-2 justify-between">
+                <Label
+                  htmlFor="blockchain1"
+                  className="justify-self-start pl-3 pt-3"
+                >
+                  Fees
+                </Label>
+                <Label
+                  htmlFor="blockchain1"
+                  className="justify-self-end pl-3 pr-4 pt-3"
+                >
+                  ---
+                </Label>
 
-          <CardFooter className="flex justify-between">
-            <Input
-              type="number"
-              className="rounded-xl border-black"
-              placeholder="Amount 0.0000"
-              value={amount === 0 ? "" : amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-          </CardFooter>
-          <div className='grid grid-cols-2 justify-between'>
-            <Label htmlFor="blockchain1" className="justify-self-start pl-3 pt-3">Gas on Destination</Label>
-            <Label htmlFor="blockchain1" className="justify-self-end pl-3 pr-4 pt-3">Add</Label>
+                <i className="fa-solid fa-user"></i>
+              </div>
+              <CardFooter className="flex justify-between">
+                <Button
+                  className={`w-full  rounded-xl border border-black bg-transparent from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 p-[6px] text-black hover:border-white hover:bg-gradient-to-r hover:text-white`}
+                  onClick={() => onSubmit()}
+                >
+                  Connect
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
-          <div className="grid grid-cols-2 justify-between">
-            <Label
-              htmlFor="blockchain1"
-              className="justify-self-start pl-3 pt-3"
-            >
-              Fees
-            </Label>
-            <Label htmlFor="blockchain1" className="justify-self-end pl-3 pr-4 pt-3">---</Label>
-
-            <i className="fa-solid fa-user"></i>
-          </div>
-          <CardFooter className="flex justify-between">
-            <Button
-              className={`w-full  rounded-xl border border-black bg-transparent from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 p-[6px] text-black hover:border-white hover:bg-gradient-to-r hover:text-white`}
-              onClick={() => onSubmit()}
-            >
-              Connect
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </section>
+        </section>
       </QueryClientProvider>
     </WagmiProvider>
   )
