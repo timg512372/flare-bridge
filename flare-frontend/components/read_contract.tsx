@@ -15,8 +15,8 @@ export function ReadContract() {
         args: address ? [address] : undefined,
     })
     if (address) {
-        return (balance?.toString()
-        )
+        return ((balance ?? 0n) / 10n ** 18n).toString()
+        
     } else {
         return (
             0

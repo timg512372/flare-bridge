@@ -127,7 +127,7 @@ export function BridgeCard() {
                 ? "0x0c2eFE1D385151870B3fFb9901B7a0FB1C5a1314"
                 : "0x8b1274d063593F0973afF1710EA4490BE67AE9f2",
             functionName: "sendToken",
-            args: [BigInt(amount) * 10n ** 18n],
+            args: [BigInt(amount) / 10n ** 18n],
             chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
           } as const,
           {
@@ -254,7 +254,7 @@ export function BridgeCard() {
           {(token2 || token1) && (
             <Label
               htmlFor="blockchain1"
-              className="pl-6 pt-3 justify-self-start"
+              className="pl-3 pt-3 justify-self-start"
             >
               B@B Tokens: {<ReadContract />}
             </Label>
@@ -363,7 +363,7 @@ export function BridgeCard() {
               Add
             </Label>
           </div>
-          <div className="grid grid-cols-3 flex justify-between">
+          <div className="grid grid-cols-2 flex justify-between">
             <Label
               htmlFor="blockchain1"
               className="pl-3 pt-3 justify-self-start"
@@ -374,8 +374,9 @@ export function BridgeCard() {
               htmlFor="blockchain1"
               className="pl-3 pt-3 justify-self-end pr-4"
             >
-              ----
+              ---
             </Label>
+
             <i className="fa-solid fa-user"></i>
           </div>
           <CardFooter className="flex justify-between">
