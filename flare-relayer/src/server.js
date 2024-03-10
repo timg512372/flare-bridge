@@ -22,7 +22,7 @@ if (network != "sepolia" && network != "coston") {
 
 const VERIFICATION_ENDPOINT =
   `https://evm-verifier.flare.network/verifier/${
-    network == "sepolia" ? "eth" : "flr"
+    network == "sepolia" ? "eth" : "sgb"
   }` + `/EVMTransaction/prepareRequest`;
 const ATTESTATION_ENDPOINT =
   `https://attestation-coston.flare.network/attestation-client/api/proof/` +
@@ -42,72 +42,136 @@ const sepoliaSigner = new ethers.Wallet(
   sepoliaProvider
 );
 
-const contract = new ethers.Contract(
+const sameChainRelayContract = new ethers.Contract(
   network == "coston" ? process.env.COSTON_RELAY : process.env.SEPOLIA_RELAY,
   relayJSON.abi,
   provider
 );
 
+const oppositeChainRelayContract = new ethers.Contract(
+  network != "coston" ? process.env.COSTON_RELAY : process.env.SEPOLIA_RELAY,
+  relayJSON.abi,
+  network != "coston" ? costonSigner : sepoliaSigner
+);
+
 console.log("Listening...");
-contract.on("RelayRequested", async (...parameters) => {
-  console.log(`Transfer event detected`);
-  console.log(parameters);
-  const event = parameters[parameters.length - 1];
+sameChainRelayContract.on("RelayRequested", async (...parameters) => {
+  try {
+    console.log(`Transfer event detected`);
+    console.log(parameters);
+    const event = parameters[parameters.length - 1];
 
-  // Call the attestation provider API
-  const utils = await import(
-    `${FLARE_CONTRACTS}/dist/coston/StateConnector/libs/ts/utils.js`
-  );
+    // Call the attestation provider API
+    const utils = await import(
+      `${FLARE_CONTRACTS}/dist/coston/StateConnector/libs/ts/utils.js`
+    );
 
-  const abiEncodedAttestation = await waitForAttestation(
-    event.log.transactionHash
-  );
+    const abiEncodedAttestation = await waitForAttestation(
+      event.log.transactionHash
+    );
 
-  const stateConnector = await getStateConnector();
-  const attestationTx = await stateConnector.requestAttestations(
-    abiEncodedAttestation
-  );
-  const receipt = await attestationTx.wait();
-  const block = await costonProvider.getBlock(receipt.blockNumber);
+    const stateConnector = await getStateConnector();
+    const attestationTx = await stateConnector.requestAttestations(
+      abiEncodedAttestation
+    );
+    const receipt = await attestationTx.wait();
+    const block = await costonProvider.getBlock(receipt.blockNumber);
 
-  // calculate round ID
-  const roundOffset = await stateConnector.BUFFER_TIMESTAMP_OFFSET();
-  const roundDuration = await stateConnector.BUFFER_WINDOW();
-  const submissionRoundID = Number(
-    (BigInt(block.timestamp) - roundOffset) / roundDuration
-  );
-  console.log(
-    `Submission round ID: ${submissionRoundID} (offset: ${roundOffset}, duration: ${roundDuration})`
-  );
+    // calculate round ID
+    const roundOffset = await stateConnector.BUFFER_TIMESTAMP_OFFSET();
+    const roundDuration = await stateConnector.BUFFER_WINDOW();
+    const submissionRoundID = Number(
+      (BigInt(block.timestamp) - roundOffset) / roundDuration
+    );
+    console.log(
+      `Submission round ID: ${submissionRoundID} (offset: ${roundOffset}, duration: ${roundDuration})`
+    );
 
-  // Wait for attestation round to finalize
-  var prevFinalizedRoundID = -1;
-  let lastFinalizedRoundID = 0;
-  while (lastFinalizedRoundID < submissionRoundID) {
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    // Wait for attestation round to finalize
+    var prevFinalizedRoundID = -1;
+    let lastFinalizedRoundID = 0;
+    while (lastFinalizedRoundID < submissionRoundID) {
+      await new Promise((resolve) => setTimeout(resolve, 10000));
 
-    lastFinalizedRoundID = Number(await stateConnector.lastFinalizedRoundId());
+      lastFinalizedRoundID = Number(
+        await stateConnector.lastFinalizedRoundId()
+      );
 
-    if (prevFinalizedRoundID != lastFinalizedRoundID) {
-      console.log("  Last finalized round is", lastFinalizedRoundID);
-      prevFinalizedRoundID = lastFinalizedRoundID;
+      if (prevFinalizedRoundID != lastFinalizedRoundID) {
+        console.log("  Last finalized round is", lastFinalizedRoundID);
+        prevFinalizedRoundID = lastFinalizedRoundID;
+      }
     }
+    // 8. Retrieve Merkle Proof
+    console.log("Retrieving proof from attestation provider...");
+
+    proof = await waitForProof({
+      roundId: submissionRoundID,
+      requestBytes: abiEncodedAttestation,
+    });
+
+    if (proof == null) {
+      console.log("Proof not found");
+      return;
+    }
+    console.log("  Received Merkle proof:", proof.data.merkleProof);
+    console.log(proof.data.response.responseBody);
+
+    const bridgedResult = await oppositeChainRelayContract.executeRelay(
+      {
+        uid: parameters[0],
+        amount: 0,
+        relayInitiator:
+          network == "coston"
+            ? process.env.COSTON_RELAY
+            : process.env.SEPOLIA_RELAY,
+        relayTarget:
+          network == "coston"
+            ? process.env.SEPOLIA_GATEWAY
+            : process.env.COSTON_GATEWAY,
+        additionalCalldata: encodeCalldata(proof),
+        sourceToken: parameters[4],
+        targetToken: parameters[5],
+        executionResult: 1,
+        relayDataHash:
+          "0x62c8a6fcd17a2b8e1b18d2e98f0c9fb0aa72719107a1a3bc07b9e1eb18c394ce",
+      },
+      { gasLimit: 10000000 }
+    );
+    const bridgedReceipt = await bridgedResult.wait();
+    console.log(bridgedReceipt);
+  } catch (error) {
+    console.log(error);
   }
-  // 8. Retrieve Merkle Proof
-
-  console.log("Retrieving proof from attestation provider...");
-
-  proof = await waitForProof({
-    roundId: submissionRoundID,
-    requestBytes: abiEncodedAttestation,
-  });
-
-  if (proof == null) {
-    console.log("Proof not found");
-    return;
-  }
-  console.log("  Received Merkle proof:", proof.data.merkleProof);
 });
+
+function encodeCalldata(proof) {
+  const fullProof = {
+    merkleProof: proof.data.merkleProof,
+    data: {
+      ...proof.data,
+      ...proof.data.request,
+      ...proof.data.response,
+      status: proof.status,
+    },
+  };
+
+  const receiver = proof.data.response.responseBody.events[0].topics[1];
+  abiCoder = ethers.AbiCoder.defaultAbiCoder();
+  address = abiCoder.decode(["address"], receiver)[0];
+  amount = abiCoder.decode(
+    ["uint"],
+    proof.data.response.responseBody.events[0].data
+  )[0];
+
+  let iface = new ethers.Interface(gatewayJSON.abi);
+  let calldata = iface.encodeFunctionData("receiveToken", [
+    address,
+    amount,
+    fullProof,
+  ]);
+  return calldata;
+}
 
 async function waitForProof(proofRequest) {
   for (let i = 0; i < 10; i++) {
@@ -139,7 +203,9 @@ async function waitForAttestation(txHash) {
     attestationType:
       "0x45564d5472616e73616374696f6e000000000000000000000000000000000000",
     sourceId:
-      "0x7465737445544800000000000000000000000000000000000000000000000000",
+      network == "sepolia"
+        ? "0x7465737445544800000000000000000000000000000000000000000000000000"
+        : "0x7465737453474200000000000000000000000000000000000000000000000000",
     requestBody: {
       transactionHash: txHash,
       requiredConfirmations: "0",

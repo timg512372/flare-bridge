@@ -4,6 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 import {CalldataInterface} from "./CalldataInterface.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "hardhat/console.sol";
 
 struct RelayData {
     uint256 uid;
@@ -84,12 +85,15 @@ contract RelayGateway is ReentrancyGuard {
 
     function executeRelay(RelayData memory _relayData) public onlyRelayer {
         // TODO: check tokens
+        console.log("working on relay");
         if(_relayData.amount > 0){
             IERC20(_relayData.targetToken).transfer(_relayData.relayTarget, _relayData.amount);            
         }
+        console.log("past token transfer");
         if(_relayData.additionalCalldata.length > 0){
             calldataInterface.executeCall(_relayData.relayTarget, _relayData.additionalCalldata);
         }
+        console.log("past call");
         executedRelays.push(_relayData);
         emit RelayExecuted(_relayData.uid, _relayData.relayInitiator, _relayData.relayTarget, _relayData.additionalCalldata, _relayData.sourceToken, _relayData.targetToken, _relayData.amount);
     }
