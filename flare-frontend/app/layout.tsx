@@ -46,13 +46,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-  className={cn(
-    "min-h-screen bg-gradient-to-r p-[6px] from-[#E3BCB0]/25 via-[#E4A8B8]/25 to-[#93AADC]/25 font-sans antialiased",
-    fontSans.variable
-  )}
->
+          className={cn(
+            fontSans.variable,
+            "min-h-screen p-[6px] antialiased",
+            "bg-gradient-to-r from-[#E3BCB0]/25 via-[#E4A8B8]/25 to-[#93AADC]/25",
+            "font-sans"
+          )}
+        >
             <ContextProvider initialState={initialState}>
-                <div className="relative flex flex-col min-h-screen">
+                <div className="relative flex min-h-screen flex-col">
                   <SiteHeader />
                   <div className="flex-1">{children}</div>
                 </div>

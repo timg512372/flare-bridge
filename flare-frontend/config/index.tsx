@@ -18,7 +18,6 @@ const metadata = {
 // Create wagmiConfig
 export const config = defaultWagmiConfig({
   chains: [songbirdTestnet, sepolia], // required
-  batch: {multicall: true},
   transports: {
     [songbirdTestnet.id]: http(),
     [sepolia.id]: http(),

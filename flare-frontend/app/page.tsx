@@ -55,23 +55,13 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import ReadContract from "@/components/read_contract"
-import { SendTransaction } from "@/components/write_contract"
+
 
 import { config } from "../config"
 
 const queryClient = new QueryClient()
 
 export default function IndexPage() {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <BridgeCard />
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
-}
-
-export function BridgeCard() {
   const FormSchema = z.object({
     token1: z.string().nonempty({ message: "Please select a token." }),
     token2: z.string().nonempty({ message: "Please select a token." }),
@@ -107,14 +97,9 @@ export function BridgeCard() {
       chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
     } as const
 
-    await writeContract(approve, {
-      onError: (error) => {
-        console.log(error)
-        console.log("Tx failed")
-      },
+    (writeContract as any)(approve, {
       onSuccess: () => {
-        console.log("Tx successful")
-        writeContract(
+        (writeContract as any)(
           {
             abi: gt_abi,
             address:
@@ -126,14 +111,6 @@ export function BridgeCard() {
             chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
           } as const,
           {
-            onError: (error) => {
-              console.log(error)
-              console.log("Tx failed")
-            },
-
-            onSuccess: () => {
-              console.log("Tx successful again")
-            },
           }
         )
       },
@@ -157,8 +134,10 @@ export function BridgeCard() {
   // }, [isSuccess])
 
   return (
-    <section className="container flex items-center justify-center gap-6 pb-8 pt-6 md:py-10 h-screen ">
-      <div className="flex-1 transform translate-x-56 pb-96">
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+      <section className="container flex h-screen items-center justify-center gap-6 pb-8 pt-6 md:py-10 ">
+      <div className="flex-1 translate-x-56 pb-96">
         <h1 className="text-3xl font-extrabold leading-tight tracking-normal md:text-5xl">
           <LinearGradient
             gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
@@ -166,7 +145,7 @@ export function BridgeCard() {
             Bridge.
           </LinearGradient>
         </h1>
-        <p className="max-w-[700px] text-xl text-muted-foreground pt-2">
+        <p className="max-w-[700px] pt-2 text-xl text-muted-foreground">
           <LinearGradient
             gradient={["to bottom right", "#E3BCB0 ,#E4A8B8, #93AADC"]}
           >
@@ -183,15 +162,15 @@ export function BridgeCard() {
           <CardContent>
             <form>
               <div className="grid w-full items-center gap-4">
-                <div className="grid grid-cols-3 gap-4 bg-gradient-to-r p-[6px] from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 rounded-xl">
-                  <div className="grid grid-col-3 space-y-1.5">
+                <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
+                  <div className="grid-col-3 grid space-y-1.5">
                     <Label htmlFor="token1" className="pl-3 pt-3">
                       Token
                     </Label>
                     <Select>
                       <SelectTrigger
                         id="token1"
-                        className="bg-transparent border-transparent font-bold text-lg h-5"
+                        className="h-5 border-transparent bg-transparent text-lg font-bold"
                       >
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
@@ -200,7 +179,7 @@ export function BridgeCard() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex h-full items-center justify-center">
                     <hr
                       style={{
                         borderLeft: "1px solid white",
@@ -217,7 +196,7 @@ export function BridgeCard() {
                     <Select onValueChange={(v) => setBlockchain1(v)}>
                       <SelectTrigger
                         id="blockchain1"
-                        className="bg-transparent border-transparent font-bold text-lg h-5"
+                        className="h-5 border-transparent bg-transparent text-lg font-bold"
                       >
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
@@ -232,8 +211,8 @@ export function BridgeCard() {
             </form>
           </CardContent>
           { (token2 || token1) && (
-            <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">
-              B@B Tokens: {<ReadContract />}
+            <Label htmlFor="blockchain1" className="justify-self-start pl-3 pt-3">
+              B@B Tokens: {ReadContract()}
             </Label>
           )}
           <CardFooter className="flex justify-between">
@@ -251,7 +230,7 @@ export function BridgeCard() {
           <CardContent>
             <form>
               <div className="grid w-full items-center gap-4">
-                <div className="grid grid-cols-3 gap-4 bg-gradient-to-r p-[6px] from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 rounded-xl">
+                <div className="grid grid-cols-3 gap-4 rounded-xl bg-gradient-to-r from-[#E3BCB0]/90 via-[#E4A8B8]/90 to-[#93AADC]/90 p-[6px]">
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="token2" className="pl-3 pt-3">
                       Token
@@ -259,7 +238,7 @@ export function BridgeCard() {
                     <Select onValueChange={(v) => setToken2(v)}>
                       <SelectTrigger
                         id="token2"
-                        className="bg-transparent border-transparent font-bold text-lg h-5"
+                        className="h-5 border-transparent bg-transparent text-lg font-bold"
                       >
                         <SelectValue
                           placeholder="Select"
@@ -276,7 +255,7 @@ export function BridgeCard() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex h-full items-center justify-center">
                     <hr
                       style={{
                         borderLeft: "1px solid white",
@@ -292,7 +271,7 @@ export function BridgeCard() {
                     <Select onValueChange={(v) => setBlockchain2(v)}>
                       <SelectTrigger
                         id="blockchain2"
-                        className="bg-transparent border-transparent font-bold text-lg h-5"
+                        className="h-5 border-transparent bg-transparent text-lg font-bold"
                       >
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
@@ -316,24 +295,24 @@ export function BridgeCard() {
               onChange={(e) => setAmount(Number(e.target.value))}
             />
           </CardFooter>
-          <div className='grid grid-cols-2 flex justify-between'>
-            <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-start">Gas on Destination</Label>
-            <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">Add</Label>
+          <div className='grid grid-cols-2 justify-between'>
+            <Label htmlFor="blockchain1" className="justify-self-start pl-3 pt-3">Gas on Destination</Label>
+            <Label htmlFor="blockchain1" className="justify-self-end pl-3 pr-4 pt-3">Add</Label>
           </div>
-          <div className="grid grid-cols-2 flex justify-between">
+          <div className="grid grid-cols-2 justify-between">
             <Label
               htmlFor="blockchain1"
-              className="pl-3 pt-3 justify-self-start"
+              className="justify-self-start pl-3 pt-3"
             >
               Fees
             </Label>
-            <Label htmlFor="blockchain1" className="pl-3 pt-3 justify-self-end pr-4">---</Label>
+            <Label htmlFor="blockchain1" className="justify-self-end pl-3 pr-4 pt-3">---</Label>
 
             <i className="fa-solid fa-user"></i>
           </div>
           <CardFooter className="flex justify-between">
             <Button
-              className={` w-full bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 rounded-full`}
+              className={`w-full  rounded-xl border border-black bg-transparent from-[#E3BCB0]/50 via-[#E4A8B8]/50 to-[#93AADC]/50 p-[6px] text-black hover:border-white hover:bg-gradient-to-r hover:text-white`}
               onClick={() => onSubmit()}
             >
               Connect
@@ -342,5 +321,7 @@ export function BridgeCard() {
         </Card>
       </div>
     </section>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }

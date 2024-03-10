@@ -8,7 +8,7 @@ export function ReadContract() {
     const { data: ensName } = useEnsName({ address })
     const { data: ensAvatar } = useEnsAvatar({ name: ensName! })
 
-    const { data: balance } = useReadContract({
+    const { data: balance } = (useReadContract as any)({
         abi,
         functionName: 'balanceOf',
         address: '0x5187763e09a672eda81F27e622129Ac28393ca53',

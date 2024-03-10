@@ -32,7 +32,7 @@ export function SiteHeader() {
   return (
     <WagmiProvider config={config}>
     <QueryClientProvider client={queryClient}> 
-    <header className="bg-transparent sticky top-0 z-40 w-full ">
+    <header className="sticky top-0 z-40 w-full bg-transparent ">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
         <div className="flex flex-1 items-center justify-end space-x-4">
@@ -42,7 +42,7 @@ export function SiteHeader() {
                 <AlertDialogTrigger>
                 <Button className={` ${buttonVariants()}`}>
                     Connected
-                    <span className="ml-2 h-2 w-2 bg-green-500 rounded-full inline-block"></span>
+                    <span className="ml-2 inline-block size-2 rounded-full bg-green-500"></span>
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -51,13 +51,13 @@ export function SiteHeader() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction className="bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl" onClick={() => disconnect()}>Disconnect</AlertDialogAction>
+                    <AlertDialogAction className="rounded-xl bg-gradient-to-r from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] p-[6px]" onClick={() => disconnect()}>Disconnect</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
               </>
             ) : (
-              <Button className={`bg-transparent border border-black text-black rounded-xl hover:border-white hover:text-white hover:bg-gradient-to-r p-[6px] from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] rounded-xl`} onClick={() => open()}>Connect Wallet</Button>                   
+              <Button className={`rounded-xl border border-black bg-transparent from-[#E3BCB0] via-[#E4A8B8] to-[#93AADC] p-[6px] text-black hover:border-white hover:bg-gradient-to-r hover:text-white`} onClick={() => open()}>Connect Wallet</Button>                   
               )}
           </nav>
         </div>
