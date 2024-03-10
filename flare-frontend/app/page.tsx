@@ -93,7 +93,12 @@ export default function IndexPage() {
           ? "0x5187763e09a672eda81F27e622129Ac28393ca53"
           : "0x8c49e01E86d9ef98eA963Be48B1E41297E06F817",
       functionName: "approve",
-      args: [address ? address : "0x", BigInt(amount) * 10n ** 18n],
+      args: [
+        blockchain1 == "Sepolia"
+          ? "0x0c2eFE1D385151870B3fFb9901B7a0FB1C5a1314"
+          : "0x8b1274d063593F0973afF1710EA4490BE67AE9f2",
+        BigInt(amount) * 10n ** 18n,
+      ],
       chainId: blockchain1 == "Sepolia" ? sepolia.id : songbirdTestnet.id,
     } as const
 
@@ -175,7 +180,12 @@ export default function IndexPage() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        <SelectItem value="token1" onClick={() => setToken2('Sepolia B@B Coin')}>B@B Coin</SelectItem>
+                        <SelectItem
+                          value="token1"
+                          onClick={() => setToken2("Sepolia B@B Coin")}
+                        >
+                          B@B Coin
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -201,8 +211,18 @@ export default function IndexPage() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        <SelectItem value="Sepolia" onClick={() => setBlockchain1('Sepolia')}>Sepolia</SelectItem>
-                        <SelectItem value="Couston" onClick={() => setBlockchain1('Couston')}>Coston</SelectItem>
+                        <SelectItem
+                          value="Sepolia"
+                          onClick={() => setBlockchain1("Sepolia")}
+                        >
+                          Sepolia
+                        </SelectItem>
+                        <SelectItem
+                          value="Couston"
+                          onClick={() => setBlockchain1("Couston")}
+                        >
+                          Coston
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -276,8 +296,18 @@ export default function IndexPage() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        <SelectItem value="Sepolia" onClick={() => setBlockchain2('Sepolia')}>Sepolia</SelectItem>
-                        <SelectItem value="Couston" onClick={() => setBlockchain2('Couston')}>Coston</SelectItem>
+                        <SelectItem
+                          value="Sepolia"
+                          onClick={() => setBlockchain2("Sepolia")}
+                        >
+                          Sepolia
+                        </SelectItem>
+                        <SelectItem
+                          value="Couston"
+                          onClick={() => setBlockchain2("Couston")}
+                        >
+                          Coston
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
