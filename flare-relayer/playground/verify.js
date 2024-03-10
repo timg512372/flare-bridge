@@ -33,17 +33,17 @@ const costonProvider = new ethers.JsonRpcProvider(
 const provider = network == "coston" ? costonProvider : sepoliaProvider;
 
 console.log(process.env.PRIVATE_KEY);
-// const costonSigner = new ethers.Wallet(process.env.PRIVATE_KEY, costonProvider);
-// const sepoliaSigner = new ethers.Wallet(
-//   process.env.PRIVATE_KEY,
-//   sepoliaProvider
-// );
+const costonSigner = new ethers.Wallet(process.env.PRIVATE_KEY, costonProvider);
+const sepoliaSigner = new ethers.Wallet(
+  process.env.PRIVATE_KEY,
+  sepoliaProvider
+);
 
-// const contract = new ethers.Contract(
-//   network == "coston" ? process.env.COSTON_RELAY : process.env.SEPOLIA_RELAY,
-//   relayJSON.abi,
-//   provider
-// );
+const contract = new ethers.Contract(
+  network == "coston" ? process.env.SEPOLIA_RELAY : process.env.COSTON_RELAY,
+  relayJSON.abi,
+  costonSigner
+);
 
 response = {
   status: "VALID",
@@ -134,6 +134,8 @@ async function try_something() {
   };
 
   abiCoder = ethers.AbiCoder.defaultAbiCoder();
+  console.log("event");
+  console.log(proof.data.response.responseBody.events[0]);
   address = abiCoder.decode(["address"], receiver)[0];
   amount = abiCoder.decode(
     ["uint"],
@@ -148,6 +150,25 @@ async function try_something() {
   ]);
   console.log("abi");
   console.log(calldata);
+
+  result = await contract.executeRelay(
+    {
+      uid: 27,
+      amount: 0,
+      relayInitiator: "0xa387afA74F74AB1c29F32D17655eA17621ABC5Dc", // sepolia gateway
+      relayTarget: "0x542F8787D9607DeD3fe59d4024F0cC1DB1b57821", // colston gateway
+      additionalCalldata: calldata,
+      sourceToken: "0x0000000000000000000000000000000000000000",
+      targetToken: "0x0000000000000000000000000000000000000000",
+      executionResult: 1,
+      relayDataHash:
+        "0x62c8a6fcd17a2b8e1b18d2e98f0c9fb0aa72719107a1a3bc07b9e1eb18c394ce",
+    },
+
+    { gasLimit: 10000000 }
+  );
+  const receipt = await result.wait();
+  console.log(receipt);
 }
 
 try_something();

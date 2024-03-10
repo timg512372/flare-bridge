@@ -6,7 +6,11 @@ require("@nomicfoundation/hardhat-ethers");
 module.exports = {
   solidity: "0.8.24",
   networks: {
-    hardhat: {},
+    hardhat: {
+      forking: {
+        url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY}`,
+      },
+    },
     coston: {
       url: "https://coston-api.flare.network/ext/bc/C/rpc",
       accounts: [process.env.PRIVATE_KEY],

@@ -11,3 +11,5 @@ node_modules
 # solidity-coverage files
 /coverage
 /coverage.json
+
+playground/verify.js
